@@ -2,8 +2,8 @@ import numpy as np
 from typing import List, Optional, Any, Tuple, Literal, Union
 from joblib import Parallel, delayed
 import sys
-from ms_amp_ai_use_cases.utils.special_interp import *
-from ms_amp_ai_use_cases.utils.smoothing import smoothed
+from .utils.special_interp import *
+from .utils.smoothing import smoothed
 import optuna
 from GPy.kern import RBF, Matern32, Matern52, RatQuad
 from GPy.models import GPRegression
@@ -13,7 +13,7 @@ import GPy.mappings as mappings
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import pickle
-from ms_amp_ai_use_cases.utils import (
+from .utils import (
     create_kernel,
     create_mean_function,
     optimize_hyperparameters_optuna,

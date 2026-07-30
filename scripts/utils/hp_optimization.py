@@ -3,7 +3,7 @@ import optuna
 import numpy as np
 from sklearn.model_selection import train_test_split
 from GPy.models import GPRegression
-from ms_amp_ai_use_cases.utils import create_kernel, create_mean_function
+from . import create_kernel, create_mean_function
 
 
 def optimize_hyperparameters_optuna(

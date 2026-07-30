@@ -7,9 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.decomposition import PCA
 from GPy.util.multioutput import LCM
-from ms_amp_ai_use_cases.utils.special_interp import *
-from ms_amp_ai_use_cases.utils.smoothing import smoothed
-from ms_amp_ai_use_cases.utils import (
+from .utils.special_interp import *
+from .utils.smoothing import smoothed
+from .utils import (
     create_kernel,
     create_mean_function,
     optimize_hyperparameters_optuna,
