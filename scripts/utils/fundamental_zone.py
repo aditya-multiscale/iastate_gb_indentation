@@ -64,12 +64,16 @@ def project_to_fundamental_zone(euler_angles: Sequence[float]):
         - phi2 in [0, pi/4]
     """
     phi1, Phi, phi2 = euler_angles
+    # Pathological check: if angles are already within the fundamental zone, return them immediately
+    if 0 <= phi1 < 2*np.pi and np.arccos(np.cos(phi2)/np.sqrt(1 + np.cos(phi2)**2)) <= Phi <= np.pi/2 and 0 <= phi2 <= np.pi/4:
+        return phi1, Phi, phi2
+
     for array in _CUBIC_SYMMETRY_OPERATORS:
         R = rotation_matrix(phi1, Phi, phi2)
         R_prime = array @ R
         phi1, Phi, phi2 = rotation_matrix_to_euler(R_prime)
         # If the transformed Euler angles satisfy the fundamental zone constraints, return them
-        if 0 <= phi1 <= 2*np.pi and np.arccos(np.cos(phi2)/np.sqrt(1 + np.cos(phi2)**2)) <= Phi <= np.pi/2 and 0 <= phi2 <= np.pi/4:
+        if 0 <= phi1 < 2*np.pi and np.arccos(np.cos(phi2)/np.sqrt(1 + np.cos(phi2)**2)) <= Phi <= np.pi/2 and 0 <= phi2 <= np.pi/4:
             return phi1, Phi, phi2
     # If no symmetry operator brings the Euler angles into the fundamental zone, return the original angles
     return phi1, Phi, phi2
