@@ -1,0 +1,16 @@
+[project]
+name = "iastate-gb-indentation"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11.14"
+dependencies = [
+    "corner>=2.3.0",
+    "gpy>=1.15.0",
+    "ipykernel>=7.4.0",
+    "joblib>=1.6.0",
+    "openpyxl>=3.1.5",
+    "optuna>=5.1.0",
+    "salib>=1.6.0",
+    "scikit-learn>=1.9.1",
+]

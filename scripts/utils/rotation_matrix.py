@@ -62,3 +62,26 @@ def get_misorientation_angle_axis(R1, R2, degrees=False):
     if degrees:
         theta = np.degrees(theta)
     return theta, axis
+
+
+import numpy as np
+
+def rotation_matrix_to_euler(R: np.ndarray, degrees: bool = False) -> tuple[float, float, float]:
+    r33 = np.clip(R[2, 2], -1.0, 1.0)
+    Phi = np.arccos(r33)
+
+    if np.isclose(np.sin(Phi), 0.0, atol=1e-8):
+        if Phi < np.pi / 2:
+            Phi = 0.0
+            phi1 = np.arctan2(-R[1, 0], R[0, 0]) % (2 * np.pi)
+        else:
+            Phi = np.pi
+            phi1 = np.arctan2(R[1, 0], R[0, 0]) % (2 * np.pi)
+        phi2 = 0.0
+    else:
+        phi1 = np.arctan2(R[2, 0], -R[2, 1]) % (2 * np.pi)
+        phi2 = np.arctan2(R[0, 2], R[1, 2]) % (2 * np.pi)
+
+    angles = (phi1, Phi, phi2)
+    return tuple(np.degrees(a) for a in angles) if degrees else angles
+
