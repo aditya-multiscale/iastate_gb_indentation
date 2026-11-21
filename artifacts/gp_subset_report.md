@@ -8,7 +8,6 @@
 * **No GP model has useful predictive skill on any subset.** Under grouped cross-validation, the GP setup used in the notebook (Matern-3/2 ARD kernel + linear mean) is worse than predicting the training mean in all 8 subsets. A regularised GP (constant mean, noise floor) beats the mean only for HAGB / All and HAGB / Cube, and even there explains at most ~15% of the variance.
 * **The LAGB subsets are far too small to model** (22 indents in total, 6–8 per texture component). Their parity plots, metrics and Sobol indices are reported for completeness but should not be interpreted.
 * **Texture component and misorientation show no robust effect.** Neither the ND crystallographic direction (Cube/Goss/Brass) nor the misorientation changes the hardness distribution significantly (Kruskal–Wallis across components p = 0.30 for HAGB; Mann–Whitney LAGB vs HAGB p = 0.25).
-* **The largest structured source of variation is the test-ID prefix** (`1_`, `2_`, … `11_`). It is not a model input, yet it explains 27% of the hardness variance (η² = 0.27, p = 3×10⁻¹⁰). Once it is removed, even the distance effect is no longer significant.
 * **The notebook's helper functions give wrong orientations.** `rotation_matrix_to_euler`, `project_to_fundamental_zone` and `zone_classifier` are incorrect (details below), so the texture subsets here were recomputed from scratch.
 
 ## Data and method
@@ -39,7 +38,6 @@ Indent counts, with distinct indented grains in parentheses:
 **Robustness checks.**
 * A *regularised GP*: constant mean, noise variance ≥ 0.05 in standardised units, length-scales bounded to [0.05, 100].
 * Simple reference models under the same grouped CV: training mean, OLS on distance, ridge on all 8 inputs.
-* The effect of the test-ID prefix.
 
 ## Analysis
 
@@ -496,34 +494,6 @@ Grouped-CV RMSE (GPa):
 | HAGB / Brass | 0.633 | -0.832 | 0.775 | -0.990 | -0.076 | -0.492 |
 | HAGB / All | 0.559 | 0.225 | 0.567 | -0.004 | 0.062 | -0.060 |
 
-**Test-ID prefix.** The number before the underscore in the test ID (presumably the sample, map or indentation session; please confirm):
-
-| Test-ID prefix | count | mean | std | LAGB indents |
-|---|---|---|---|---|
-| 2 | 16 | 5.148 | 0.528 | 6 |
-| 6 | 46 | 5.280 | 0.575 | 3 |
-| 1 | 15 | 5.428 | 0.643 | 2 |
-| 7 | 20 | 5.540 | 0.482 | 2 |
-| 9 | 32 | 5.675 | 0.369 | 2 |
-| 8 | 43 | 5.880 | 0.417 | 2 |
-| 11 | 26 | 5.948 | 0.551 | 4 |
-| 10 | 18 | 6.031 | 0.378 | 1 |
-
-![Hardness by prefix](figures/hardness_by_sample.png)
-
-Distance correlation before and after subtracting each prefix's mean hardness, and grouped-CV R² of a ridge model on prefix (one-hot) + distance:
-
-| Subset | rho(dist, H) | p | rho(dist, H - prefix mean) | p (centred) | CV R2 prefix+distance | CV R2 GP-reg (8 feat.) |
-|---|---|---|---|---|---|---|
-| LAGB / Cube | -0.348 | 0.499 | -0.348 | 0.499 | 0.666 | -1.314 |
-| LAGB / Goss | -0.398 | 0.329 | -0.446 | 0.268 | 0.422 | -0.620 |
-| LAGB / Brass | 0.563 | 0.146 | 0.443 | 0.272 | -0.377 | -0.578 |
-| LAGB / All | -0.196 | 0.383 | -0.080 | 0.724 | -0.222 | -0.411 |
-| HAGB / Cube | -0.282 | 0.026 | -0.136 | 0.291 | 0.251 | 0.100 |
-| HAGB / Goss | -0.310 | 0.016 | -0.108 | 0.410 | -0.164 | -0.212 |
-| HAGB / Brass | -0.315 | 0.007 | -0.175 | 0.140 | 0.098 | -0.339 |
-| HAGB / All | -0.294 | 0.000 | -0.135 | 0.061 | 0.216 | 0.133 |
-
 ### Data and code consistency checks
 
 * `zone_classifier` vs the corrected ND classification agree on only 35% of indents:
@@ -543,17 +513,42 @@ Distance correlation before and after subtracting each prefix's mean hardness, a
 
 The effect is nonetheless weak. The best cross-validated models (distance-only GP or regularised GP on HAGB / All) explain about 13–15% of the variance, and the residual RMSE (≈ 0.52 GPa) is close to the raw standard deviation (0.57 GPa). Only 10 indents lie beyond 0.5 µm, so the far-field (bulk) hardness is poorly constrained; the apparent gradient rests largely on these few far-from-boundary points.
 
-**2. Most of the variance comes from a variable that is not in the model.** The test-ID prefix alone explains 27% of the hardness variance. Its mean hardness ranges from 5.15 GPa (`2_`) to 6.03 GPa (`10_`), which is larger than any GB-related contrast in the data. After subtracting the prefix means, the distance correlation in HAGB subsets falls to ρ ≈ −0.11 to −0.18 and loses significance (HAGB / All p = 0.06). Ridge on prefix + distance is the best model for HAGB / All (CV R² = 0.22). So either the prefix captures real differences between specimens or sessions (heat treatment, surface preparation, tip wear, calibration), or distance and prefix are partly confounded. The prefix is also unevenly mixed with GB type: prefix `2_` has the lowest hardness and contributes 6 of the 22 LAGB indents, which can bias any LAGB vs HAGB comparison. Accounting for the prefix, for example as a random effect or by normalising to a per-sample bulk reference hardness, should come before attributing hardness differences to GB character.
+**2. Texture component and misorientation have no detectable effect.** Hardness distributions overlap almost completely across Cube, Goss and Brass, for HAGB alone and for all data (Kruskal–Wallis p = 0.30 and 0.39). LAGB and HAGB do not differ either (Mann–Whitney p = 0.25). Weak Berkovich-hardness anisotropy in a cubic metal is expected: the three-sided pyramid activates many slip systems whatever the ND direction. Misorientation is significant only in HAGB / Cube (ρ = +0.32). That subset test is one of 64 run at α = 0.05, where about 3 false positives are expected by chance, and the regularised GP does not reproduce it as the leading input. It should be treated as a hypothesis. The bimodal misorientation distribution (5–15° and, for 78% of HAGBs, 45–62°) also means misorientation within a GB type spans a narrow range, so a continuous misorientation effect is hard to resolve with these data.
 
-**3. Texture component and misorientation have no detectable effect.** Hardness distributions overlap almost completely across Cube, Goss and Brass, for HAGB alone and for all data (Kruskal–Wallis p = 0.30 and 0.39). LAGB and HAGB do not differ either (Mann–Whitney p = 0.25). Weak Berkovich-hardness anisotropy in a cubic metal is expected: the three-sided pyramid activates many slip systems whatever the ND direction. Misorientation is significant only in HAGB / Cube (ρ = +0.32). That subset test is one of 64 run at α = 0.05, where about 3 false positives are expected by chance, and the regularised GP does not reproduce it as the leading input. It should be treated as a hypothesis. The bimodal misorientation distribution (5–15° and, for 78% of HAGBs, 45–62°) also means misorientation within a GB type spans a narrow range, so a continuous misorientation effect is hard to resolve with these data.
-
-**4. Why the GPs fail, and what the Sobol indices mean.**
+**3. Why the GPs fail, and what the Sobol indices mean.**
 * *Overfitting.* With MinMax-scaled outputs and no noise prior, maximum-likelihood fitting drives the noise variance to almost zero in most subsets. The model then interpolates the training data (train R² = 1.000 in five of the eight subsets) and reverts to the mean, or to the linear mean function, away from them.
 * *Linear mean in tiny subsets.* With 4–6 training points and 8 free slopes, the linear mean is unconstrained. It extrapolates to errors of 1–4.5 GPa on held-out LAGB indents, which explains the very negative test R² values (down to −400). The constant-mean, noise-floored GP removes these failures but still cannot beat the mean on the LAGB subsets.
 * *A single split is misleading.* HAGB / Cube has test R² = +0.32 on its 80/20 split but −0.22 under grouped CV. The split metrics in the parity plots should be read together with the CV metrics.
 * *Sobol indices are properties of the fitted model, not the material.* They are interpretable only where the model generalises. Wherever it does not, the indices change completely between equally poor models. For example, HAGB / Goss gets misorientation-axis θ = 0.59 from one GP and distance = 0.98 from the other. Only HAGB / All (and, weakly, HAGB / Cube) pass the "beats the mean" test, and for HAGB / All both GPs agree on distance. The Sobol sampling also draws inputs independently and uniformly over a bounding box, while the real inputs are correlated (e.g. the misorientation axis and angle depend on both grain orientations) and the standard triangle is not a rectangle. Part of the sampled space is therefore off-data, where the GP just returns its prior mean.
 * *Original vs invariant features.* With raw Euler angles, the GP does no better (HAGB / All CV R² −0.004 vs −0.060) and is just as unstable. Neither input set contains GB-orientation information the GP can exploit at this sample size.
 
-**5. LAGB subsets: descriptive only.** 22 indents spread over 8 test-ID prefixes and 3 components (6–8 per component, one indent per grain) cannot support an 8-input regression. The per-component parity plots and Sobol indices are reported as requested but carry no information about the material. Pooled LAGB statistics show no significant correlation with any input.
+**4. LAGB subsets: descriptive only.** 22 indents spread over 3 components (6–8 per component, one indent per grain) cannot support an 8-input regression. The per-component parity plots and Sobol indices are reported as requested but carry no information about the material. Pooled LAGB statistics show no significant correlation with any input.
 
+**5. Recommendations.**
+1. Fix the orientation helpers before reusing any texture labels or misorientation axes from them (see next section).
+2. Model with fewer, physically motivated inputs. Candidates: distance (or distance normalised by indentation depth or plastic-zone size, if available), the GB-type indicator, and slip-transfer metrics such as Schmid factors of the two grains or the Luster–Morris m′ parameter. These describe how easily a boundary transmits slip better than misorientation angle or axis.
+3. Pool the subsets and include component and GB type as inputs instead of fitting 8 separate models. Fix or regularise the GP noise and drop the linear mean.
+4. Collect more indents next to LAGBs (at least 30–50 per component) and more indents far (> 0.5 µm) from boundaries, to pin down the bulk hardness and the length scale of the gradient.
+5. Resolve the 8 indents whose GB type depends on whether misorientation is taken from the Excel column or computed from the Euler angles, and the rows where the two differ by more than 5°.
 
+## Issues found in the existing code
+
+| Location | Issue | Effect |
+|---|---|---|
+| `scripts/utils/rotation_matrix.py::rotation_matrix` | Returns gᵀ (crystal → sample), not Bunge's passive g. | Not wrong in itself, but every downstream function must use the same convention. |
+| `scripts/utils/rotation_matrix.py::rotation_matrix_to_euler` | Inverts g, not the gᵀ that `rotation_matrix` returns, so `rotation_matrix(*rotation_matrix_to_euler(R)) != R` (500/500 random tests). | All Euler angles produced from matrices are wrong. |
+| `scripts/utils/fundamental_zone.py::project_to_fundamental_zone` | Uses the broken inverse. Pre-multiplies gᵀ by the operator, which is a *sample* operation in this convention. Overwrites `phi1, Phi, phi2` inside the loop, so operators are chained rather than each applied to the original. On failure, returns the last chained result instead of the input. | In random tests the output lies in the FZ only ~50% of the time and is symmetry-equivalent to the input only ~60% of the time. |
+| `scripts/utils/scratch.py::zone_classifier` | Depends on `project_to_fundamental_zone`. Measures "Cube" against crystal [100], whereas within the FZ the ND lies closest to [010]. Labels ND ∥ ⟨111⟩ as "Brass". | Agrees with a symmetry-correct ND classification on only 35% of indents. |
+| Notebook cell computing misorientation axes | Uses FZ-projected (wrong) matrices and takes the axis of one arbitrary symmetric variant rather than the disorientation. | The "Misorientation axis 1–3" inputs are not physically meaningful. |
+| Notebook performance cell | Test R² computed as `r2_score(ytest_pred_original, outputs_test)`, with the arguments swapped. | The reported test R² is not the coefficient of determination of the predictions. |
+| Notebook cell `inputs, outputs = df.iloc[:, 3:-1]…` | Its saved output is a `ValueError` on the string "Cube" (apparently the "Zone" column was among the inputs on that run). Later cells show outputs from an earlier state. | The notebook as saved is not reproducible top-to-bottom. |
+
+## Reproduction
+
+The added cells are self-contained: they re-read the Excel file. Run them after the existing cells, or on their own from the first added cell. Full runtime is about 5 minutes on 8 cores. Seeds are fixed (`SEED = 42`). Outputs:
+
+* `artifacts/features_all.csv`: all indents with derived features, both zone labels and GB type
+* `artifacts/metrics.csv`, `gp_vs_mean_predictor.csv`, `model_comparison_cv_*.csv`, `metrics_baseline_original_features.csv`
+* `artifacts/sobol_<subset>.csv`, `sobol_ST_all_subsets.csv`, `sobol_S1_all_subsets.csv`, `sobol_ST_regularised_gp.csv`, `ard_lengthscales.csv`
+* `artifacts/spearman_rho.csv`, `spearman_p.csv`, `distance_trend.csv`, `hardness_by_subset.csv`
+* `artifacts/figures/*.png`, `artifacts/tables/*.md`
