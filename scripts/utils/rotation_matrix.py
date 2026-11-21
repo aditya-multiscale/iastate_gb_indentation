@@ -34,7 +34,7 @@ def rotation_matrix(phi1, PHI, phi2, degrees=False):
             [np.sin(phi2) * np.sin(PHI), np.cos(phi2) * np.sin(PHI), np.cos(PHI)],
         ]
     )
-    return R
+    return R.T
 
 def get_misorientation_angle_axis(R1, R2, degrees=False):
     """
