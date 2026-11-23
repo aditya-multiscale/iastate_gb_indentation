@@ -1,6 +1,6 @@
-| zone_classifier \ corrected | Brass | Cube | Goss | All |
+| index | Brass | Cube | Goss | All |
 |---|---|---|---|---|
-| Brass | 17 | 10 | 13 | 40 |
-| Cube | 56 | 51 | 47 | 154 |
-| Goss | 7 | 7 | 8 | 22 |
+| Brass | 45 | 22 | 41 | 108 |
+| Cube | 35 | 36 | 24 | 95 |
+| Goss | 0 | 10 | 3 | 13 |
 | All | 80 | 68 | 68 | 216 |

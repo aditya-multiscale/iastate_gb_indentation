@@ -1,8 +1,5 @@
-| Subset | slope (GPa/um) | intercept (GPa) | r | p |
+| index | slope (GPa/um) | intercept (GPa) | r | p |
 |---|---|---|---|---|
-| LAGB / Cube | -2.689 | 6.322 | -0.499 | 0.314 |
-| LAGB / Goss | -1.817 | 6.341 | -0.264 | 0.527 |
-| LAGB / Brass | 1.314 | 5.596 | 0.502 | 0.205 |
 | LAGB / All | -0.820 | 5.992 | -0.181 | 0.421 |
 | HAGB / Cube | -1.832 | 6.146 | -0.454 | 0.000 |
 | HAGB / Goss | -1.824 | 6.022 | -0.385 | 0.002 |

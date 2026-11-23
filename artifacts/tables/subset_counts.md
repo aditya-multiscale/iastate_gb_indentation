@@ -1,6 +1,7 @@
-| Zone | LAGB | HAGB | All |
-|---|---|---|---|
-| Cube | 6 (6) | 62 (49) | 68 (55) |
-| Goss | 8 (8) | 60 (50) | 68 (58) |
-| Brass | 8 (8) | 72 (57) | 80 (64) |
-| All | 22 (22) | 194 (156) | 216 (177) |
+| index | Indents | Distinct indented grains |
+|---|---|---|
+| LAGB / All | 22 | 22 |
+| HAGB / Cube | 62 | 49 |
+| HAGB / Goss | 60 | 50 |
+| HAGB / Brass | 72 | 57 |
+| HAGB / All | 194 | 156 |
